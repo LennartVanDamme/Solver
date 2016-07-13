@@ -1,0 +1,18 @@
+Solution for problem: mine-90-10
+Total time for conflict search: 12426
+Total amount of conflicting groups: 1541Solution is infeasible and has 1 violations to constraints.
+The violated constraints are: 
+	CAP_0_9
+
+ObjectiveFunction value: -1.1308898358279957E13
+
+Number of moves evaluated: 144534786; Number of moves done: 0
+Values of de decision variables:
+X_84_9, value=1
+X_29_9, value=1
+X_7_9, value=1
+X_83_9, value=1
+X_17_9, value=1
+X_63_9, value=1
+X_36_9, value=1
+X_49_9, value=1

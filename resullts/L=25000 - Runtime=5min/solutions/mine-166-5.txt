@@ -1,0 +1,20 @@
+Solution for problem: mine-166-5
+Total time for conflict search: 1252
+Total amount of conflicting groups: 0Solution is infeasible and has 1 violations to constraints.
+The violated constraints are: 
+	ORD_105_1
+
+ObjectiveFunction value: -1.3054955767697992E9
+
+Number of moves evaluated: 84002504; Number of moves done: 0
+Values of de decision variables:
+X_82_4, value=1
+X_105_1, value=1
+X_105_4, value=1
+X_79_4, value=1
+X_79_3, value=1
+X_132_4, value=1
+X_165_4, value=1
+X_104_4, value=1
+X_67_4, value=1
+X_133_4, value=1

@@ -1,0 +1,43 @@
+Solution for problem: cov1075
+Total time for conflict search: 0
+Total amount of conflicting groups: 0Solution is feasible.
+
+ObjectiveFunction value: 35.0
+
+Number of moves evaluated: 43295310; Number of moves done: 0
+Values of de decision variables:
+x52, value=1
+x51, value=1
+x54, value=1
+x56, value=1
+x60, value=1
+x65, value=1
+x64, value=1
+x67, value=1
+x102, value=1
+x72, value=1
+x73, value=1
+x82, value=1
+x85, value=1
+x89, value=1
+x90, value=1
+x92, value=1
+x97, value=1
+x118, value=1
+x11, value=1
+x14, value=1
+x16, value=1
+x113, value=1
+x109, value=1
+x107, value=1
+x24, value=1
+x4, value=1
+x26, value=1
+x6, value=1
+x31, value=1
+x34, value=1
+x33, value=1
+x38, value=1
+x43, value=1
+x45, value=1
+x47, value=1

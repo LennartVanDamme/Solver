@@ -1,0 +1,53 @@
+Solution for problem: iis-100-0-cov
+Total time for conflict search: 0
+Total amount of conflicting groups: 0Solution is feasible.
+
+ObjectiveFunction value: 45.0
+
+Number of moves evaluated: 11621376; Number of moves done: 0
+Values of de decision variables:
+x50, value=1
+x52, value=1
+x53, value=1
+x56, value=1
+x58, value=1
+x59, value=1
+x60, value=1
+x62, value=1
+x69, value=1
+x68, value=1
+x100, value=1
+x72, value=1
+x71, value=1
+x81, value=1
+x80, value=1
+x83, value=1
+x82, value=1
+x85, value=1
+x84, value=1
+x89, value=1
+x90, value=1
+x92, value=1
+x93, value=1
+x10, value=1
+x98, value=1
+x13, value=1
+x16, value=1
+x18, value=1
+x17, value=1
+x20, value=1
+x2, value=1
+x3, value=1
+x24, value=1
+x4, value=1
+x9, value=1
+x32, value=1
+x31, value=1
+x34, value=1
+x38, value=1
+x41, value=1
+x40, value=1
+x42, value=1
+x45, value=1
+x47, value=1
+x46, value=1
