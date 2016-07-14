@@ -1,0 +1,2 @@
+"Tijd","Kost beste oplossing","nViolations beste oplossing","Feasibility factor beste oplossing"
+"0","-3.12619432164E11","139","201422.0"

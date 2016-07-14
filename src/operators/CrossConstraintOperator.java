@@ -1,8 +1,8 @@
 package operators;
 
-import model.Constraint;
-import model.DecisionVariable;
-import model.Solution;
+import core.Constraint;
+import core.DecisionVariable;
+import core.Solution;
 import solver.Heuristic;
 import solver.Solver;
 

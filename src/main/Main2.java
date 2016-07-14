@@ -21,14 +21,15 @@ public class Main2 {
     public static final long LOG_PERIOD = 500;
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
     public static int GROUPSIZE = 2;
-    public static CSVWriter csvWriter;
+    public static String outputPath;
+
     private static FileHandler fh;
 
     public static void main(String[] args) throws Exception {
 
         final String inputFilePath = args[0];
         final boolean minimize = true;
-        final long runtime = -1;
+        final long runtime = 10;
         final int lateAcceptanceFitnessSize = 10000;
         final int crossConstraintParam = 5;
         final int conflictGraphDepth = 0;
@@ -36,11 +37,11 @@ public class Main2 {
         final int unorderedCyclicShift = 0;
 
         File inputFile = new File(inputFilePath);
+        outputPath = args[1];
 
         Solver solver = solver = new Solver(new MPSReader(), minimize, lateAcceptanceFitnessSize, crossConstraintParam, conflictGraphDepth, orderedCyclicShift, unorderedCyclicShift);
         solver.readProblem(inputFile);
-        csvWriter = new CSVWriter(new FileWriter("doc/output/objectiveValues/" + inputFile.getName().substring(0, inputFile.getName().length() - 4) + ".csv"), '\t');
-        csvWriter.writeNext("Time", "Total Objective value", "Number of violated constraints", "Objective value");
+
         solver.solve(runtime);
         if (solver.getViolatedConstraints().isEmpty()) {
             System.out.println(getTimeStamp() + "\tObjectiveValue = " + solver.getModel().getObjectiveFunction().getTotalValue());
@@ -48,8 +49,8 @@ public class Main2 {
             System.out.println(getTimeStamp() + "\tSolution infeasible.");
         }
 
-        solver.printSolution("doc/output/solutions/" + inputFile.getName().substring(0, inputFile.getName().length() - 4) + ".txt");
-        csvWriter.close();
+        solver.printSolution(outputPath + "/solutions/" + inputFile.getName().substring(0, inputFile.getName().length() - 4) + ".txt");
+
 
     }
 

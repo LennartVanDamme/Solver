@@ -1,7 +1,7 @@
 package operators;
 
-import model.Constraint;
-import model.Solution;
+import core.Constraint;
+import core.Solution;
 import solver.Solver;
 
 public class FlipOperator implements Operator {

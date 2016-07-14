@@ -1,6 +1,6 @@
 package operators;
 
-import model.Solution;
+import core.Solution;
 
 public interface Operator {
 

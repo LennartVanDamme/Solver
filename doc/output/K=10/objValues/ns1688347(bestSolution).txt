@@ -1,0 +1,1 @@
+"Tijd","Kost beste oplossing","nViolations beste oplossing","Feasibility factor beste oplossing"

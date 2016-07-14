@@ -3,7 +3,7 @@ package solver;
 import exceptions.BPException;
 import io.OutputWriter;
 import io.Reader;
-import model.*;
+import core.*;
 import operators.*;
 import org.jgrapht.alg.BronKerboschCliqueFinder;
 import org.jgrapht.graph.DefaultEdge;
@@ -136,11 +136,11 @@ public class Solver {
         //initiateConflictingGroups();
         setObserverStructure();
         model.getObjectiveFunction().calculatePenaltyCost();
+        //createInitialSolution();
         calculateInitialState();
         heuristic.setRunTime(runTime);
-        System.out.println();
         heuristic.start(solution, model);
-        System.out.println();
+        solution.setBestFoundSolution(heuristic.getBestSolution());
     }
 
     private void initiateConflictingGroups() {
@@ -285,29 +285,42 @@ public class Solver {
 
     }
 
+    private void createInitialSolution(){
+        int nVariables = Heuristic.RANDOM.nextInt(solution.getnDecisionVariabels());
+        Set<String> variablesSelected = new HashSet<>();
+        while (nVariables != 0){
+            String variable = solution.giveRandomVariable();
+            while(variablesSelected.contains(variable)){
+                variable = solution.giveRandomVariable();
+            }
+            variablesSelected.add(variable);
+            solution.flipVariable(variable);
+            nVariables--;
+        }
+    }
+
     public void printSolution(String path) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(new File(path)));
             writer.write("Solution for problem: " + model.getName() + "\n");
             writer.write("Total time for conflict search: " + totalSearchTimeConflict + "\n");
             writer.write("Total amount of conflicting groups: " + conflictingGroups.size() + "\n");
+            writer.write("Aantal iteraties uitgevoerd: "+heuristic.nSteps + "\n");
             if (model.getInfeasibleConstraints().isEmpty()) {
                 writer.write("Solution is feasible.\n");
             } else {
                 writer.write("Solution is infeasible and has " + model.getInfeasibleConstraints().size()
                         + " violations to constraints.\n");
-                writer.write("The violated constraints are: \n");
-                for (Constraint violatedConstraint : model.getInfeasibleConstraints()) {
-                    writer.write("\t" + violatedConstraint.getName() + "\n");
-                }
             }
-            writer.write("\nObjectiveFunction value: " + solution.getObjectiveValue() + "\n\n");
+            writer.write("\nObjectiveFunction value: " + solution.getObjective() + "\n\n");
             writer.write("Number of moves evaluated: " + heuristic.nSteps + "; Number of moves done: "
                     + heuristic.nMoveAccepted + "\n");
-            writer.write("Values of de decision variables:\n");
-            for (DecisionVariable variable : solution.getDecisionVariableMap().values()) {
-                if (variable.getValue() == 1) {
-                    writer.write(variable.toString() + "\n");
+            writer.write("Tijden wanneer nieuwe beste oplossing gevonden is:\n");
+            if(heuristic.getTimeNewBestSolutionFound().isEmpty()){
+                writer.write("Geen extra beste oplossingen gevonden.");
+            } else {
+                for(Long tijd : heuristic.getTimeNewBestSolutionFound()){
+                    writer.write("\t"+tijd.toString()+"\n");
                 }
             }
             writer.close();
@@ -346,6 +359,10 @@ public class Solver {
         return model.getInfeasibleConstraints();
     }
 
+    /**
+     * Returns a violated {@link Constraint}. The {@link Constraint} is selected using a roulette.
+     * @return Returns a violated {@link Constraint} if there are any. Else null will be returned.
+     */
     public Constraint getViolatedConstraint() {
         if (model.getInfeasibleConstraints().isEmpty()) return null;
         else return model.getInfeasibleConstraint();
@@ -355,6 +372,12 @@ public class Solver {
         return solution.getDecisionvariable(decionvariableName);
     }
 
+    /**
+     * Returns a violated {@link Constraint}. The {@link Constraint} is selected from the constraints
+     * where the variable given is part of. The constraint is
+     * @param variableName
+     * @return
+     */
     public Constraint getViolatedConstraint(String variableName) {
         if (model.getInfeasibleConstraints().isEmpty()) return null;
         Set<String> constraints = getDecisionVaraible(variableName).getConstraints();

@@ -2,10 +2,10 @@ package io;
 
 import exceptions.BPException;
 import exceptions.BPReaderException;
-import model.Constraint;
-import model.DecisionVariable;
-import model.ObjectiveFunction;
-import model.SetPackingConstraint;
+import core.Constraint;
+import core.DecisionVariable;
+import core.ObjectiveFunction;
+import core.SetPackingConstraint;
 import solver.Solver;
 
 import java.io.File;
@@ -19,27 +19,21 @@ public class MPSReader implements Reader {
 
     private static int checkSection(String input) {
         if (input.toUpperCase().contains("ROWS")) {
-            System.out.println("Rows sectie");
             return 1;
         }
         if (input.toUpperCase().contains("COLUMNS")) {
-            System.out.println("Columns sectie");
             return 2;
         }
         if (input.toUpperCase().contains("RHS")) {
-            System.out.println("RHS sectie");
             return 3;
         }
         if (input.toUpperCase().contains("RANGES")) {
-            System.out.println("ranges sectie");
             return 4;
         }
         if (input.toUpperCase().contains("BOUNDS")) {
-            System.out.println("Bounds sectie");
             return 5;
         }
         if (input.toUpperCase().contains("ENDATA")) {
-            System.out.println("End data");
             return 6;
         }
         return 0;
