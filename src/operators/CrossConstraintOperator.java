@@ -3,8 +3,8 @@ package operators;
 import core.Constraint;
 import core.DecisionVariable;
 import core.Solution;
-import solver.Heuristic;
-import solver.Solver;
+import core.Heuristic;
+import core.Solver;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -1,9 +1,7 @@
-package solver;
+package core;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import main.Main;
-import core.Model;
-import core.Solution;
 import main.Main2;
 import operators.Operator;
 
@@ -13,10 +11,10 @@ import java.util.*;
 public class Heuristic {
 
     public static final Random RANDOM = new Random(0);
-    public static boolean MINIMIZE;
+    static boolean MINIMIZE;
     private final int L;
-    public int nSteps;
-    public int nMoveAccepted;
+    int nSteps;
+    int nMoveAccepted;
     private double[] fitness;
     private List<Operator> operators;
     private long runTime;
@@ -46,7 +44,7 @@ public class Heuristic {
     }
 
     public void start(Solution solution, Model model) throws Exception {
-        csvWriter = new CSVWriter(new FileWriter(Main.outputDirectory + "objValues/" + model.getName() + "(bestSolution).txt"), ',');
+        csvWriter = new CSVWriter(new FileWriter(Main2.outputPath + "objValues/" + model.getName() + "(bestSolution).csv"), ',');
         csvWriter.writeNext("Tijd", "Kost beste oplossing", "nViolations beste oplossing", "Feasibility factor beste oplossing");
         bestObjectiveValue = solution.getObjective();
         bestSolution = solution.variableValues();
@@ -86,14 +84,15 @@ public class Heuristic {
                 bestSolution = solution.variableValues();
                 nViolationsBestSolution = model.getInfeasibleConstraints().size();
                 feasibilityFactorBestSolution = model.getObjectiveFunction().getFeasibilityFactor();
-                timeNewBestSolutionFound.add(currentTime-startTime);
-                csvWriter.writeNext("" + (currentTime-startTime), "" + bestObjectiveValue, "" + nViolationsBestSolution, ""+ feasibilityFactorBestSolution);
+                timeNewBestSolutionFound.add(System.currentTimeMillis()-startTime);
+                csvWriter.writeNext("" + (System.currentTimeMillis()-startTime), "" + bestObjectiveValue, "" + nViolationsBestSolution, ""+ feasibilityFactorBestSolution);
             } else if (!MINIMIZE && fitness[v] > bestObjectiveValue) {
                 bestObjectiveValue = fitness[v];
                 bestSolution = solution.variableValues();
                 nViolationsBestSolution = model.getInfeasibleConstraints().size();
                 feasibilityFactorBestSolution = model.getObjectiveFunction().getFeasibilityFactor();
-                timeNewBestSolutionFound.add(currentTime-startTime);
+                timeNewBestSolutionFound.add(System.currentTimeMillis()-startTime);
+                csvWriter.writeNext("" + (System.currentTimeMillis()-startTime), "" + bestObjectiveValue, "" + nViolationsBestSolution, ""+ feasibilityFactorBestSolution);
             }
             nSteps++;
         }

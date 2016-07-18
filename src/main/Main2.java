@@ -1,11 +1,9 @@
 package main;
 
-import au.com.bytecode.opencsv.CSVWriter;
 import io.MPSReader;
-import solver.Solver;
+import core.Solver;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -28,18 +26,17 @@ public class Main2 {
     public static void main(String[] args) throws Exception {
 
         final String inputFilePath = args[0];
-        final boolean minimize = true;
-        final long runtime = 10;
+        final boolean minimize = false;
+        final long runtime = -1;
         final int lateAcceptanceFitnessSize = 10000;
-        final int crossConstraintParam = 5;
-        final int conflictGraphDepth = 0;
-        final int orderedCyclicShift = 0;
-        final int unorderedCyclicShift = 0;
+        final int crossConstraintParam = 0;
+        final int conflictGraphDepth = 5;
+        final boolean cyclicShift = false;
 
         File inputFile = new File(inputFilePath);
         outputPath = args[1];
 
-        Solver solver = solver = new Solver(new MPSReader(), minimize, lateAcceptanceFitnessSize, crossConstraintParam, conflictGraphDepth, orderedCyclicShift, unorderedCyclicShift);
+        Solver solver = solver = new Solver(new MPSReader(), minimize, lateAcceptanceFitnessSize, crossConstraintParam, conflictGraphDepth, cyclicShift);
         solver.readProblem(inputFile);
 
         solver.solve(runtime);

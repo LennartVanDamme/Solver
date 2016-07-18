@@ -6,7 +6,7 @@ import core.Constraint;
 import core.DecisionVariable;
 import core.ObjectiveFunction;
 import core.SetPackingConstraint;
-import solver.Solver;
+import core.Solver;
 
 import java.io.File;
 import java.io.FileNotFoundException;

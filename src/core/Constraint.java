@@ -1,7 +1,5 @@
 package core;
 
-import solver.Heuristic;
-
 import java.util.*;
 
 public class Constraint extends Observable implements Observer, Comparable<Constraint> {

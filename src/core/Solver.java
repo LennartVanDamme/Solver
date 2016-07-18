@@ -1,9 +1,8 @@
-package solver;
+package core;
 
 import exceptions.BPException;
 import io.OutputWriter;
 import io.Reader;
-import core.*;
 import operators.*;
 import org.jgrapht.alg.BronKerboschCliqueFinder;
 import org.jgrapht.graph.DefaultEdge;
@@ -28,19 +27,8 @@ public class Solver {
     private Map<Integer, Clique> cliques;
     private long totalSearchTimeConflict;
 
-    /**
-     * Create an instance of the {@link Solver} class.
-     *
-     * @param reader                    {@link Reader} specified by the user. The user can implement its own {@link Reader} instance. When no {@link Reader} is specified a {@link BPException} will be thrown.
-     * @param minimize                  Boolean to speficied if the solver should minimize the {@link ObjectiveFunction}. When true is given, the {@link Solver} will minimize, others wise it will maximize.
-     * @param lateAcceptanceFitnessSize Specifies the size of the fitness array in the {@link Heuristic}.
-     * @param crossConstraintParam      Specifies the maximum amount of variables to flip in the same constraint for the {@link CrossConstraintOperator}. When 0 is given, no instance is made of {@link CrossConstraintOperator}.
-     * @param conflictGraphDepth        Specifies the depth of search for the {@link GraphOperator}. When 0 is given, no instance is made of {@link GraphOperator}.
-     * @param orderedCyclicShift        When true is given as parameter, an instance of {@link OrderedCyclicShiftOperator} is created for the {@link Heuristic} to use.
-     * @param unorderedCyclicShift      When true is given as parameter, an instance of {@link UnorderedCyclicShiftOperator} is created for the {@link Heuristic} to use.
-     * @throws BPException An {@link BPException} is thrown when no {@link Reader} is specified by the user.
-     */
-    public Solver(Reader reader, boolean minimize, int lateAcceptanceFitnessSize, int crossConstraintParam, int conflictGraphDepth, int orderedCyclicShift, int unorderedCyclicShift) throws BPException {
+
+    public Solver(Reader reader, boolean minimize, int lateAcceptanceFitnessSize, int crossConstraintParam, int conflictGraphDepth, boolean cyclicShift) throws BPException {
         model = new Model();
         if (reader == null) {
             throw new BPException("No reader specified. Specify a reader");
@@ -52,7 +40,7 @@ public class Solver {
         outputWriter = new OutputWriter();
         cliques = new HashMap<>();
         conflictingGroups = new HashMap<>();
-        createOperators(crossConstraintParam, conflictGraphDepth, orderedCyclicShift, unorderedCyclicShift);
+        createOperators(crossConstraintParam, conflictGraphDepth, cyclicShift);
     }
 
     /**
@@ -73,28 +61,17 @@ public class Solver {
             return Constraint.EQUALITY;
     }
 
-    /**
-     * Creates the operators the user wants.
-     *
-     * @param crossConstraintParam Maximum amount of variables to flip in the same constraint for the {@link CrossConstraintOperator}. When 0 is given, no instance is made of {@link CrossConstraintOperator}.
-     * @param conflictGraphDepth   Depth of search for the {@link GraphOperator}. When 0 is given, no instance is made of {@link GraphOperator}.
-     * @param orderedCyclicShift   When true is given as parameter, an instance of {@link OrderedCyclicShiftOperator} is created.
-     * @param unorderedCyclicShift When true is given as parameter, an instance of {@link UnorderedCyclicShiftOperator} is created.
-     */
-    private void createOperators(int crossConstraintParam, int conflictGraphDepth, int orderedCyclicShift, int unorderedCyclicShift) {
+    private void createOperators(int crossConstraintParam, int conflictGraphDepth, boolean cyclicShift) {
         if (crossConstraintParam != 0) {
             heuristic.addOperator(new CrossConstraintOperator(this, crossConstraintParam));
         }
         if (conflictGraphDepth != 0) {
             heuristic.addOperator(new GraphOperator(this, conflictGraphDepth));
         }
-        if (orderedCyclicShift != 0) {
-            heuristic.addOperator(new OrderedCyclicShiftOperator(this));
-        }
-        if (unorderedCyclicShift != 0) {
+        if (cyclicShift) {
             heuristic.addOperator(new UnorderedCyclicShiftOperator(this));
         }
-        heuristic.addOperator(new FlipOperator(this));
+        // heuristic.addOperator(new FlipOperator(this));
     }
 
     /**
@@ -112,8 +89,10 @@ public class Solver {
         return model;
     }
 
-    public void setModel(Model model) {
-        this.model = model;
+    public ObjectiveFunction getObjectiveFunction(){ return model.getObjectiveFunction();}
+
+    public SimpleGraph<DecisionVariable, DefaultEdge> getConflictingGraph() {
+        return conflictingGraph;
     }
 
     /**
@@ -127,11 +106,11 @@ public class Solver {
         model.checkForForbiddenVariables();
         solution.excludeForbiddenVariables(model.getForbiddenVariables());
         long startSearchConflict = System.currentTimeMillis();
-        //searchConflicts();
+        searchConflicts();
         totalSearchTimeConflict = System.currentTimeMillis() - startSearchConflict;
-        //createConflictGraph();
+        createConflictGraph();
         //System.out.println(Main.getTimeStamp() + "\tStart clique detection...");
-        //detectCliques();
+        detectCliques();
         //System.out.println(Main.getTimeStamp() + "\tClique detection finished.");
         //initiateConflictingGroups();
         setObserverStructure();
@@ -216,20 +195,20 @@ public class Solver {
             setPackingConstraint.orderCoefficients();
             setPackingConstraint.searchConflcitingPairs(solution.getDecisionVariableMap());
         }
-        double i = 1.0;
-        final double totalNumberPackingConstraints = model.getSetPackingConstraints().size();
-        for (String setPackingConstraintName : model.getSetPackingConstraints()) {
-
-            setPackingConstraint = (SetPackingConstraint) model.getContraint(setPackingConstraintName);
-
-            if (setPackingConstraint.groupsPossible()) {
-                // System.out.println(Main.getTimeStamp() + "\t\tStart search of conflicting groups.");
-                setPackingConstraint.searchConflitsBetweenGroupsAndVariables(solution.getDecisionVariableMap(), conflictingGroups);
-                // System.out.println(Main.getTimeStamp() + "\t\tSearch for conflicting groups is completed.");
-            }
-            i++;
-
-        }
+//        double i = 1.0;
+//        final double totalNumberPackingConstraints = model.getSetPackingConstraints().size();
+//        for (String setPackingConstraintName : model.getSetPackingConstraints()) {
+//
+//            setPackingConstraint = (SetPackingConstraint) model.getContraint(setPackingConstraintName);
+//
+//            if (setPackingConstraint.groupsPossible()) {
+//                // System.out.println(Main.getTimeStamp() + "\t\tStart search of conflicting groups.");
+//                setPackingConstraint.searchConflitsBetweenGroupsAndVariables(solution.getDecisionVariableMap(), conflictingGroups);
+//                // System.out.println(Main.getTimeStamp() + "\t\tSearch for conflicting groups is completed.");
+//            }
+//            i++;
+//
+//        }
     }
 
     private void createConflictGraph() {
@@ -241,9 +220,9 @@ public class Solver {
             conflictingGraph.addVertex(decisionVariable);
         }
         // Adding all the conflictingGroupDecisionVariables
-        for (ConflictingGroup conflictingGroup : conflictingGroups.values()) {
-            conflictingGraph.addVertex(conflictingGroup);
-        }
+//        for (ConflictingGroup conflictingGroup : conflictingGroups.values()) {
+//            conflictingGraph.addVertex(conflictingGroup);
+//        }
 
         // System.out.println(conflictingGraph.toString());
 
@@ -260,16 +239,16 @@ public class Solver {
                         !conflictingGraph.containsEdge(solution.getDecisionvariable(conflictingName), variable))
                     conflictingGraph.addEdge(variable, solution.getDecisionVariableMap().get(conflictingName));
             }
-            for (Long hash : variable.getConflictingGroups()) {
-                conflictingGraph.addEdge(variable, conflictingGroups.get(hash));
-            }
+//            for (Long hash : variable.getConflictingGroups()) {
+//                conflictingGraph.addEdge(variable, conflictingGroups.get(hash));
+//            }
         }
-        for (ConflictingGroup group : conflictingGroups.values()) {
-            for (Long hash : group.getConflictingGroups()) {
-                if (!conflictingGraph.containsEdge(group, conflictingGroups.get(hash)) && !conflictingGraph.containsEdge(conflictingGroups.get(hash), group))
-                    conflictingGraph.addEdge(group, conflictingGroups.get(hash));
-            }
-        }
+//        for (ConflictingGroup group : conflictingGroups.values()) {
+//            for (Long hash : group.getConflictingGroups()) {
+//                if (!conflictingGraph.containsEdge(group, conflictingGroups.get(hash)) && !conflictingGraph.containsEdge(conflictingGroups.get(hash), group))
+//                    conflictingGraph.addEdge(group, conflictingGroups.get(hash));
+//            }
+//        }
 
     }
 
@@ -278,7 +257,8 @@ public class Solver {
                 conflictingGraph);
         List<Set<DecisionVariable>> cliqueList = new ArrayList<>(bronKerboschCliqueFinder.getAllMaximalCliques());
         for (int i = 0; i < cliqueList.size(); i++) {
-            Clique clique = new Clique(i, cliqueList.get(i));
+            Clique clique = new Clique(i, this);
+            clique.addVariables(cliqueList.get(i));
             clique.connectDecisionVariables();
             cliques.put(i, clique);
         }

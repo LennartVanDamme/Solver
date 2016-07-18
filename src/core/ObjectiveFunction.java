@@ -1,9 +1,8 @@
 package core;
 
-import solver.Heuristic;
-
 import java.util.Map;
 import java.util.Observable;
+import java.util.concurrent.atomic.DoubleAccumulator;
 
 public class ObjectiveFunction extends Constraint {
 
@@ -79,4 +78,10 @@ public class ObjectiveFunction extends Constraint {
     public void updateFeasibilityFactor(double differenceInFeasibility) {
         feasibilityFactor += differenceInFeasibility;
     }
+
+    public double getCoefficientForVariable(String variable){
+        if(getCoefficients().get(variable) == null) return Double.MAX_VALUE;
+        else return getCoefficients().get(variable);
+    }
+
 }

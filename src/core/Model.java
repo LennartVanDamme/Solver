@@ -1,7 +1,5 @@
 package core;
 
-import solver.Heuristic;
-
 import java.util.*;
 
 public class Model implements Observer {

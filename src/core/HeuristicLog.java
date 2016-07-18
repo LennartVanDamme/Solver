@@ -1,4 +1,4 @@
-package solver;
+package core;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import main.Main;
@@ -20,12 +20,11 @@ public class HeuristicLog extends TimerTask {
     private long startTime;
     private CSVWriter csvWriter;
 
-
-    public HeuristicLog(Solution solution, Model model, long startTime) throws IOException {
+    HeuristicLog(Solution solution, Model model, long startTime) throws IOException {
         this.solution = solution;
         this.model = model;
         this.startTime = startTime;
-        csvWriter = new CSVWriter(new FileWriter(Main.outputDirectory + "objValues/" + model.getName() + ".csv"), ',');
+        csvWriter = new CSVWriter(new FileWriter(Main2.outputPath + "objValues/" + model.getName() + ".csv"), ',');
         csvWriter.writeNext("Time", "Kost huidige oplossing", "nViolations huidige oplossing",
                 "Feasability factor huidige oplossing");
     }

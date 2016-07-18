@@ -2,7 +2,7 @@ package operators;
 
 import core.Constraint;
 import core.Solution;
-import solver.Solver;
+import core.Solver;
 
 public class FlipOperator implements Operator {
 

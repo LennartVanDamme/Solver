@@ -12,14 +12,16 @@ public class Clique implements Observer {
 
     private final int ID;
     private List<DecisionVariable> decisionVariables;
-    private List<DecisionVariable> variablesOfSolution;
     private boolean violated;
+    private Solver solver;
+    private int totalActive;
 
-    public Clique(int id, Set<DecisionVariable> decisionVariables) {
+    public Clique(int id, Solver solver) {
         ID = id;
         violated = false;
-        this.decisionVariables = new ArrayList<>(decisionVariables);
-        variablesOfSolution = new ArrayList<>();
+        this.solver = solver;
+        totalActive = 0;
+        this.decisionVariables = new LinkedList<>();
     }
 
     /**
@@ -43,27 +45,46 @@ public class Clique implements Observer {
     /**
      * Adds the ID of the clique to every decision variable in the clique.
      */
-    public void connectDecisionVariables() {
+    void connectDecisionVariables() {
         for (DecisionVariable variable : decisionVariables) {
             variable.addClique(ID);
         }
     }
+
+    void addVariables(Set<DecisionVariable> variableSet){
+        decisionVariables.addAll(variableSet);
+        Collections.sort(decisionVariables, new Comparator<DecisionVariable>() {
+            @Override
+            public int compare(DecisionVariable variable1, DecisionVariable variable2) {
+
+                double coeffVariable1 = solver.getObjectiveFunction().getCoefficientForVariable(variable1.getName());
+                double coeffVariable2 = solver.getObjectiveFunction().getCoefficientForVariable(variable2.getName());
+
+                if(Heuristic.MINIMIZE){
+                    if(coeffVariable1 > coeffVariable2) return 1;
+                    if(coeffVariable1 < coeffVariable2) return -1;
+                } else {
+                    if(coeffVariable1 > coeffVariable2) return -1;
+                    if(coeffVariable1 < coeffVariable2) return 1;
+                }
+
+                return 0;
+            }
+        });
+    }
+
 
     @Override
     public String toString() {
         return "Clique [ID=" + ID + ", decisionVariables=" + decisionVariables + "]";
     }
 
-    public void addDecisionVariable(DecisionVariable var) {
-        variablesOfSolution.add(var);
-    }
 
     @Override
     public void update(Observable arg0, Object arg1) {
-        int totalActive = 0;
-        for (DecisionVariable variable : variablesOfSolution) {
-            totalActive += variable.getValue();
-        }
+        DecisionVariable var = (DecisionVariable) arg0;
+        if(var.getValue() == 1) totalActive++;
+        else totalActive--;
         violated = totalActive > 1;
 
 

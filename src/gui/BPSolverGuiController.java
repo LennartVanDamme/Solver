@@ -13,7 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import solver.Solver;
+import core.Solver;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,8 +47,8 @@ public class BPSolverGuiController {
     private CheckBox minimizeCheckbox;
 
     private File inputFile;
-    private boolean minimize;
-    private int lateAcceptanceFitness, crossConstraintParam, conflictGraphDepth, orderedCyclicShift, unorderedCyclicShift;
+    private boolean minimize, cyclicShift;
+    private int lateAcceptanceFitness, crossConstraintParam, conflictGraphDepth;
     private long runtime;
 
     public void chooseFile(ActionEvent actionEvent) {
@@ -61,6 +61,7 @@ public class BPSolverGuiController {
 
     public void solveProblem(ActionEvent actionEvent) throws IOException {
         minimize = minimizeCheckbox.isSelected();
+        cyclicShift = cycleOperatorsCheckbox.isSelected();
 
         if (lateAcceptanceFitnessTextField.getText() == null || lateAcceptanceFitnessTextField.getText().trim().isEmpty()) {
             lateAcceptanceFitness = -1;
@@ -74,14 +75,6 @@ public class BPSolverGuiController {
             runtime = -2;
         } else {
             runtime = Integer.parseInt(runtimeTextField.getText().trim());
-        }
-
-        if (cycleOperatorsCheckbox.isSelected()) {
-            orderedCyclicShift = 1;
-            unorderedCyclicShift = 1;
-        } else {
-            orderedCyclicShift = 0;
-            unorderedCyclicShift = 0;
         }
 
         if (crossConstraintParamTextField.getText() == null || crossConstraintParamTextField.getText().trim().isEmpty()) {
@@ -101,14 +94,14 @@ public class BPSolverGuiController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("BPSolverGui.fxml"));
             Parent parent = loader.load();
             BPSolverGuiController controller = loader.getController();
-            controller.initData(new Object[]{minimize, lateAcceptanceFitness, runtime, orderedCyclicShift, unorderedCyclicShift, crossConstraintParam, conflictGraphDepth, inputFile});
+            controller.initData(new Object[]{minimize, lateAcceptanceFitness, runtime, cyclicShift, crossConstraintParam, conflictGraphDepth, inputFile});
             Scene scene = new Scene(parent);
             Stage stage = (Stage) rootPane.getScene().getWindow();
             stage.setScene(scene);
             stage.show();
         } else {
             try {
-                Solver solver = new Solver(new MPSReader(), minimize, lateAcceptanceFitness, crossConstraintParam, conflictGraphDepth, orderedCyclicShift, unorderedCyclicShift);
+                Solver solver = new Solver(new MPSReader(), minimize, lateAcceptanceFitness, crossConstraintParam, conflictGraphDepth, cyclicShift);
                 solver.readProblem(inputFile);
                 solver.solve(runtime);
             } catch (Exception e) {
@@ -135,7 +128,7 @@ public class BPSolverGuiController {
             runtimeTextField.setText(Long.toString(runtime));
         }
 
-        cycleOperatorsCheckbox.setSelected(orderedCyclicShift == 1);
+        cycleOperatorsCheckbox.setSelected(cyclicShift);
         if (crossConstraintParam == -1) {
             // Add red
         } else {
@@ -158,11 +151,10 @@ public class BPSolverGuiController {
         minimize = (boolean) data[0];
         lateAcceptanceFitness = (int) data[1];
         runtime = (long) data[2];
-        orderedCyclicShift = (int) data[3];
-        unorderedCyclicShift = (int) data[4];
-        crossConstraintParam = (int) data[5];
-        conflictGraphDepth = (int) data[6];
-        inputFile = (File) data[7];
+        cyclicShift = (boolean) data[3];
+        crossConstraintParam = (int) data[4];
+        conflictGraphDepth = (int) data[5];
+        inputFile = (File) data[6];
     }
 }
 

@@ -1,11 +1,9 @@
 package main;
 
-import au.com.bytecode.opencsv.CSVWriter;
 import io.MPSReader;
-import solver.Solver;
+import core.Solver;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.FileHandler;
@@ -36,10 +34,9 @@ public class Main {
         final boolean minimize = true;
         final long runtime = 20 * 60;
         int lateAcceptanceFitnessSize;
-        int crossConstraintParam = 10;
-        final int conflictGraphDepth = 0;
-        final int orderedCyclicShift = 0;
-        final int unorderedCyclicShift = 0;
+        int crossConstraintParam = 0;
+        final int conflictGraphDepth = 5;
+        final boolean cyclicShift = false;
 
         File directory = new File(args[0]);
 
@@ -50,8 +47,7 @@ public class Main {
             lateAcceptanceFitnessSize = (int) temp;
 
             Solver solver = solver = new Solver(new MPSReader(),
-                    minimize, lateAcceptanceFitnessSize, crossConstraintParam, conflictGraphDepth,
-                    orderedCyclicShift, unorderedCyclicShift);
+                    minimize, lateAcceptanceFitnessSize, crossConstraintParam, conflictGraphDepth, cyclicShift);
             System.out.println("READING PROBLEM: " + mpsFile.getName());
             solver.readProblem(mpsFile);
             System.out.println("Solving");
@@ -63,7 +59,7 @@ public class Main {
 
             crossConstraintParam = 20;
 
-            solver = new Solver(new MPSReader(), minimize, lateAcceptanceFitnessSize, crossConstraintParam, conflictGraphDepth, orderedCyclicShift, unorderedCyclicShift);
+            solver = new Solver(new MPSReader(), minimize, lateAcceptanceFitnessSize, crossConstraintParam, conflictGraphDepth, cyclicShift);
             System.out.println("READING PROBLEM: " + mpsFile.getName());
             solver.readProblem(mpsFile);
             System.out.println("Solving");
@@ -76,7 +72,7 @@ public class Main {
 
             crossConstraintParam = 30;
 
-            solver = new Solver(new MPSReader(), minimize, lateAcceptanceFitnessSize, crossConstraintParam, conflictGraphDepth, orderedCyclicShift, unorderedCyclicShift);
+            solver = new Solver(new MPSReader(), minimize, lateAcceptanceFitnessSize, crossConstraintParam, conflictGraphDepth, cyclicShift);
             System.out.println("READING PROBLEM: " + mpsFile.getName());
             solver.readProblem(mpsFile);
             System.out.println("Solving");

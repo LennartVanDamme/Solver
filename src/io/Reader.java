@@ -1,6 +1,6 @@
 package io;
 
-import solver.Solver;
+import core.Solver;
 
 /**
  * Created by Lennart on 1/07/16.

@@ -2,9 +2,11 @@ package operators;
 
 import core.Constraint;
 import core.Solution;
-import solver.Solver;
+import core.Heuristic;
+import core.Solver;
 
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Lennart on 5/07/16.
@@ -13,8 +15,7 @@ public class UnorderedCyclicShiftOperator implements Operator {
 
     private Solver solver;
 
-    private String [] variableNames;
-    private Integer [] originalValues;
+    private Set<String> flippedVariables;
 
     public UnorderedCyclicShiftOperator(Solver solver) {
         this.solver = solver;
@@ -24,18 +25,31 @@ public class UnorderedCyclicShiftOperator implements Operator {
     public void doMove(Solution solution) {
 
         Constraint constaint = solver.getViolatedConstraint();
+        flippedVariables = new HashSet<>();
 
-        variableNames = constaint.getVariableValues().keySet().toArray(new String[]{});
-        originalValues = constaint.getVariableValues().values().toArray(new Integer[]{});
+        if(constaint.getVariableValues().size() == 1) return;
+        String [] variableNames = constaint.getVariableValues().keySet().toArray(new String[]{});
+        Integer [] originalValues = constaint.getVariableValues().values().toArray(new Integer[]{});
 
-        int temp;
+        int [] shiftedValues = new int[originalValues.length];
+        int shiftKey = Heuristic.RANDOM.nextInt(originalValues.length-1);
+
         for (int i = 0; i < originalValues.length; i++){
+            shiftedValues[(i+shiftKey)%originalValues.length] = originalValues[i];
+        }
 
+        for(int i = 0; i < originalValues.length; i++){
+            if (originalValues[i] != shiftedValues[i]){
+                solution.flipVariable(variableNames[i]);
+                flippedVariables.add(variableNames[i]);
+            }
         }
     }
 
     @Override
     public void undoMove(Solution solution) {
-
+        for(String variableName : flippedVariables){
+            solution.flipVariable(variableName);
+        }
     }
 }
