@@ -15,7 +15,7 @@ public class DecisionVariable extends Observable implements Comparable<DecisionV
     private Set<String> constraints;
     private Set<String> conflictingDecisionVariables;
     private Set<Long> conflictingGroups;
-    private List<Integer> cliquesContainingVariable;
+    private Set<Integer> cliquesContainingVariable;
     private int value;
     private int bound;
 
@@ -27,7 +27,7 @@ public class DecisionVariable extends Observable implements Comparable<DecisionV
         boundType = "N";
         inObjective = false;
         constraints = new HashSet<>();
-        cliquesContainingVariable = new LinkedList<>();
+        cliquesContainingVariable = new HashSet<>();
         conflictingDecisionVariables = new HashSet<>();
         conflictingGroups = new HashSet<>();
         value = 0;
@@ -44,7 +44,7 @@ public class DecisionVariable extends Observable implements Comparable<DecisionV
         constraints = new HashSet<>();
         conflictingDecisionVariables = new HashSet<>();
         conflictingGroups = new HashSet<>();
-        cliquesContainingVariable = new LinkedList<>();
+        cliquesContainingVariable = new HashSet<>();
         value = 0;
     }
 
@@ -60,7 +60,7 @@ public class DecisionVariable extends Observable implements Comparable<DecisionV
         constraints = new HashSet<>(decisionVariable.getConstraints());
         conflictingDecisionVariables = new HashSet<>(decisionVariable.getConflictingDecisionVariables());
         conflictingGroups = new HashSet<>(decisionVariable.getConflictingGroups());
-        cliquesContainingVariable = new LinkedList<>(decisionVariable.getCliquesContainingVariable());
+        cliquesContainingVariable = new HashSet<>(decisionVariable.getCliquesContainingVariable());
         value = decisionVariable.getValue();
         bound = decisionVariable.getBound();
     }
@@ -135,11 +135,11 @@ public class DecisionVariable extends Observable implements Comparable<DecisionV
         this.bound = bound;
     }
 
-    public List<Integer> getCliquesContainingVariable() {
+    public Set<Integer> getCliquesContainingVariable() {
         return cliquesContainingVariable;
     }
 
-    public void setCliquesContainingVariable(List<Integer> cliquesContainingVariable) {
+    public void setCliquesContainingVariable(Set<Integer> cliquesContainingVariable) {
         this.cliquesContainingVariable = cliquesContainingVariable;
     }
 

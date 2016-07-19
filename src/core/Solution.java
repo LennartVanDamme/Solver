@@ -109,4 +109,9 @@ public class Solution {
             }
         }
     }
+
+    public String flipRandomVariable() {
+
+        return null;
+    }
 }

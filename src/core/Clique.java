@@ -1,6 +1,8 @@
 package core;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * This class is used when set packing constraints are in the model.
@@ -15,6 +17,8 @@ public class Clique implements Observer {
     private boolean violated;
     private Solver solver;
     private int totalActive;
+    private double [] weightsOfVariables;
+    private double totalWeight;
 
     public Clique(int id, Solver solver) {
         ID = id;
@@ -22,6 +26,7 @@ public class Clique implements Observer {
         this.solver = solver;
         totalActive = 0;
         this.decisionVariables = new LinkedList<>();
+        totalWeight = 0;
     }
 
     /**
@@ -40,6 +45,10 @@ public class Clique implements Observer {
 
     public boolean isViolated() {
         return violated;
+    }
+
+    public int getTotalActive() {
+        return totalActive;
     }
 
     /**
@@ -71,6 +80,17 @@ public class Clique implements Observer {
                 return 0;
             }
         });
+
+    }
+
+    void initiateWeightArrays(){
+        weightsOfVariables = new double[decisionVariables.size()];
+        int i = 0;
+        for(DecisionVariable variable : decisionVariables){
+            weightsOfVariables[i] = solver.getObjectiveFunction().getCoefficientForVariable(variable.getName());
+            totalWeight += solver.getObjectiveFunction().getCoefficientForVariable(variable.getName());
+            i++;
+        }
     }
 
 
@@ -86,8 +106,57 @@ public class Clique implements Observer {
         if(var.getValue() == 1) totalActive++;
         else totalActive--;
         violated = totalActive > 1;
-
-
     }
 
+    /**
+     * Returns variabelen die geflipped moeten worden met respect tot andere reeds bekenen cliques.
+     * Als er geen variabelen geflipped moeten worden is de set leeg.
+     * */
+    public Set<String> solve(Set<String> variablesToKeep) {
+        Set<String> variablesTobeFlipped = new HashSet<>();
+        DecisionVariable variable;
+        int tempTotalActive = totalActive;
+        int index;
+        List<Integer> indices = Arrays.asList((Integer[]) IntStream.range(0, weightsOfVariables.length).boxed().toArray());
+
+        while(tempTotalActive != 1 && indices.isEmpty()){
+            index = roulettePickVariable(indices);
+            variable = decisionVariables.get(index);
+            if(variable.getValue() == 1 && !variablesToKeep.contains(variable.getName())){
+                variablesTobeFlipped.add(variable.getName());
+            }
+            indices.remove((Integer) index);
+        }
+
+        return variablesTobeFlipped;
+    }
+
+
+    /**
+     * Kiest een variabelen om te flippen in de clique op een roulette manier.
+     * @param indices Lijst met mogelijke indexes van beslissingsvariabelen waar nog uit gekozen kan worden.
+     * @return Naam van de variabele om te flippen.
+     */
+    private int roulettePickVariable(List<Integer> indices){
+        double value = Heuristic.RANDOM.nextDouble() * totalWeight;
+        int i = 0;
+        while(value > 0.0){
+            value -= weightsOfVariables[indices.get(i)];
+            i = (i + 1) % indices.size();
+        }
+        return i;
+    }
+
+    public String roulettePickVariable(){
+        double value = Heuristic.RANDOM.nextDouble() * totalWeight;
+        for(int i = 0; i < weightsOfVariables.length; i++){
+            value -= weightsOfVariables[i];
+            if (value <= 0.0) return decisionVariables.get(i).getName();
+        }
+        return decisionVariables.get(0).getName();
+    }
+
+    public Collection<String> getVariableNames(){
+        return decisionVariables.stream().map(DecisionVariable::getName).collect(Collectors.toCollection(LinkedList::new));
+    }
 }

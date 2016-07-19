@@ -26,7 +26,7 @@ public class Main2 {
     public static void main(String[] args) throws Exception {
 
         final String inputFilePath = args[0];
-        final boolean minimize = false;
+        final boolean minimize = true;
         final long runtime = -1;
         final int lateAcceptanceFitnessSize = 10000;
         final int crossConstraintParam = 0;

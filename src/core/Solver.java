@@ -71,7 +71,7 @@ public class Solver {
         if (cyclicShift) {
             heuristic.addOperator(new UnorderedCyclicShiftOperator(this));
         }
-        // heuristic.addOperator(new FlipOperator(this));
+        heuristic.addOperator(new FlipOperator(this));
     }
 
     /**
@@ -89,7 +89,9 @@ public class Solver {
         return model;
     }
 
-    public ObjectiveFunction getObjectiveFunction(){ return model.getObjectiveFunction();}
+    public ObjectiveFunction getObjectiveFunction() {
+        return model.getObjectiveFunction();
+    }
 
     public SimpleGraph<DecisionVariable, DefaultEdge> getConflictingGraph() {
         return conflictingGraph;
@@ -115,7 +117,7 @@ public class Solver {
         //initiateConflictingGroups();
         setObserverStructure();
         model.getObjectiveFunction().calculatePenaltyCost();
-        //createInitialSolution();
+        createInitialSolution();
         calculateInitialState();
         heuristic.setRunTime(runTime);
         heuristic.start(solution, model);
@@ -257,26 +259,35 @@ public class Solver {
                 conflictingGraph);
         List<Set<DecisionVariable>> cliqueList = new ArrayList<>(bronKerboschCliqueFinder.getAllMaximalCliques());
         for (int i = 0; i < cliqueList.size(); i++) {
-            Clique clique = new Clique(i, this);
-            clique.addVariables(cliqueList.get(i));
-            clique.connectDecisionVariables();
-            cliques.put(i, clique);
+            if (cliqueList.get(i).size() > 1) {
+                Clique clique = new Clique(i, this);
+                clique.addVariables(cliqueList.get(i));
+                clique.connectDecisionVariables();
+                clique.initiateWeightArrays();
+                cliques.put(i, clique);
+            }
         }
 
     }
 
-    private void createInitialSolution(){
-        int nVariables = Heuristic.RANDOM.nextInt(solution.getnDecisionVariabels());
-        Set<String> variablesSelected = new HashSet<>();
-        while (nVariables != 0){
-            String variable = solution.giveRandomVariable();
-            while(variablesSelected.contains(variable)){
-                variable = solution.giveRandomVariable();
+    private void createInitialSolution() {
+        double oldObjValue = model.getObjectiveFunction().getTotalValue();
+        solution.flipRandomVariable();
+        double newObjValue = model.getObjectiveFunction().getTotalValue();
+        if (Heuristic.MINIMIZE && newObjValue < oldObjValue) {
+            while (newObjValue < oldObjValue) {
+                oldObjValue = newObjValue;
+                solution.flipRandomVariable();
+                newObjValue = model.getObjectiveFunction().getTotalValue();
             }
-            variablesSelected.add(variable);
-            solution.flipVariable(variable);
-            nVariables--;
+        } else if (!Heuristic.MINIMIZE && newObjValue > oldObjValue) {
+            while (newObjValue > oldObjValue) {
+                oldObjValue = newObjValue;
+                solution.flipRandomVariable();
+                newObjValue = model.getObjectiveFunction().getTotalValue();
+            }
         }
+
     }
 
     public void printSolution(String path) {
@@ -285,7 +296,7 @@ public class Solver {
             writer.write("Solution for problem: " + model.getName() + "\n");
             writer.write("Total time for conflict search: " + totalSearchTimeConflict + "\n");
             writer.write("Total amount of conflicting groups: " + conflictingGroups.size() + "\n");
-            writer.write("Aantal iteraties uitgevoerd: "+heuristic.nSteps + "\n");
+            writer.write("Aantal iteraties uitgevoerd: " + heuristic.nSteps + "\n");
             if (model.getInfeasibleConstraints().isEmpty()) {
                 writer.write("Solution is feasible.\n");
             } else {
@@ -296,11 +307,11 @@ public class Solver {
             writer.write("Number of moves evaluated: " + heuristic.nSteps + "; Number of moves done: "
                     + heuristic.nMoveAccepted + "\n");
             writer.write("Tijden wanneer nieuwe beste oplossing gevonden is:\n");
-            if(heuristic.getTimeNewBestSolutionFound().isEmpty()){
+            if (heuristic.getTimeNewBestSolutionFound().isEmpty()) {
                 writer.write("Geen extra beste oplossingen gevonden.");
             } else {
-                for(Long tijd : heuristic.getTimeNewBestSolutionFound()){
-                    writer.write("\t"+tijd.toString()+"\n");
+                for (Long tijd : heuristic.getTimeNewBestSolutionFound()) {
+                    writer.write("\t" + tijd.toString() + "\n");
                 }
             }
             writer.close();
@@ -341,6 +352,7 @@ public class Solver {
 
     /**
      * Returns a violated {@link Constraint}. The {@link Constraint} is selected using a roulette.
+     *
      * @return Returns a violated {@link Constraint} if there are any. Else null will be returned.
      */
     public Constraint getViolatedConstraint() {
@@ -355,6 +367,7 @@ public class Solver {
     /**
      * Returns a violated {@link Constraint}. The {@link Constraint} is selected from the constraints
      * where the variable given is part of. The constraint is
+     *
      * @param variableName
      * @return
      */
@@ -369,5 +382,9 @@ public class Solver {
 
     public Constraint getRandomConstraint() {
         return model.getRandomConstraint();
+    }
+
+    public Clique getClique(Integer cliqueID) {
+        return cliques.get(cliqueID);
     }
 }
