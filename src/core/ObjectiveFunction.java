@@ -23,7 +23,12 @@ public class ObjectiveFunction extends Constraint {
     }
 
     public double getTotalValue() {
-        return feasibilityFactor * penaltyCost + objectiveValue;
+        if (Heuristic.MINIMIZE)  {
+            totalValue = objectiveValue + feasibilityFactor * penaltyCost;
+        } else {
+            totalValue = objectiveValue - feasibilityFactor * penaltyCost;
+        }
+        return totalValue;
     }
 
     public double getObjectiveValue() {
@@ -31,7 +36,7 @@ public class ObjectiveFunction extends Constraint {
     }
 
     public void calculateObjectivevalue() {
-        totalValue += feasibilityFactor * penaltyCost;
+        totalValue = feasibilityFactor * penaltyCost;
         for (Map.Entry<String, Integer> entry : getVariableValues().entrySet()) {
             objectiveValue += entry.getValue() * getCoefficients().get(entry.getKey());
         }
@@ -47,9 +52,7 @@ public class ObjectiveFunction extends Constraint {
         for (Double coefficient : super.getCoefficients().values()) {
             penaltyCost += coefficient;
         }
-        if (!Heuristic.MINIMIZE) {
-            penaltyCost *= -1;
-        }
+        penaltyCost = Math.abs(penaltyCost);
     }
 
     public double getPenaltyCost() {
