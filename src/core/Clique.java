@@ -88,25 +88,19 @@ public class Clique implements Observer {
 
     void initiateWeightArrays() {
         weightsOfVariables = new double[decisionVariables.size()];
-        List<DecisionVariable> temp = new LinkedList<>();
-        int i = 0, tempIndex;
+        int i = 0;
+        double normalWeight = 1 / decisionVariables.size();
+        double weightObjectiveVariable = normalWeight * 2;
         for (DecisionVariable variable : decisionVariables) {
             if (variable.isInObjective()) {
-                weightsOfVariables[i] = solver.getObjectiveFunction().getCoefficientForVariable(variable.getName());
-                totalWeight += solver.getObjectiveFunction().getCoefficientForVariable(variable.getName());
-                i++;
+                weightsOfVariables[i] = weightObjectiveVariable;
+                totalWeight += weightObjectiveVariable;
             } else {
-                temp.add(variable);
+                weightsOfVariables[i] = normalWeight;
+                totalWeight += normalWeight;
             }
-
-        }
-        tempIndex = i;
-        for (Object aTemp : temp) {
-            weightsOfVariables[i] = totalWeight / decisionVariables.size();
             i++;
-        }
-        if (!temp.isEmpty()) {
-            totalWeight += tempIndex * (totalWeight / decisionVariables.size());
+
         }
     }
 
