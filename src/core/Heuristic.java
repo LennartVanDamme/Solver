@@ -60,15 +60,16 @@ public class Heuristic {
         Timer timer = new Timer();
         HeuristicLog heuristicLog = new HeuristicLog(solution, model, startTime);
         timer.schedule(heuristicLog, 0, Main.LOG_PERIOD);
-
+        csvWriter.writeNext("" + (System.currentTimeMillis() - startTime), "" + bestObjectiveValue, "" + nViolationsBestSolution, "" + feasibilityFactorBestSolution);
         double oldObjectiveValue, newObjectiveValue;
+
         int v; // Is de counter die over de fitness array loopt.
         while (runTime == -1 || (currentTime - startTime) < runTime) {
             currentTime = System.currentTimeMillis() / 1000;
             v = nSteps % L;
             
             operator = operators.get(RANDOM.nextInt(operators.size()));
-            // System.out.println(operator);
+            System.out.println(operator);
             oldObjectiveValue = solution.getObjective();
             operator.doMove(solution);
 
