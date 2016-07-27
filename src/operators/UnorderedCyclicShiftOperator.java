@@ -25,6 +25,7 @@ public class UnorderedCyclicShiftOperator implements Operator {
     public void doMove(Solution solution) {
 
         Constraint constaint = solver.getViolatedConstraint();
+        if(constraint == null) return;
         flippedVariables = new HashSet<>();
 
         if(constaint.getVariableValues().size() == 1) return;
